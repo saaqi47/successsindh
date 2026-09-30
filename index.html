@@ -63,6 +63,9 @@
     border-top: 1px solid var(--line);
   }
   .ad-foot .t { font-weight: 700; font-size: 1.02rem; }
+  .deadline { font-size: .88rem; font-weight: 600; color: var(--blue-dark); margin-top: 2px; }
+  .deadline.closed { color: var(--danger); }
+  .btn[disabled] { opacity: .6; cursor: not-allowed; }
 
   .btn {
     appearance: none; border: 0; cursor: pointer;
@@ -249,6 +252,19 @@
   let currentOlympiad = null;
 
   // ---- Load olympiads ----
+  // ---- Last date helpers ----
+  function todayStr() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function isClosed(last) { return !!last && todayStr() > String(last).slice(0, 10); }
+  function fmtDate(last) {
+    const [y, m, d] = String(last).slice(0, 10).split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  }
+
   // Built-in Olympiad: shows if the database has none yet
   const FALLBACK = [{
     id: null,
@@ -280,16 +296,32 @@
 
         const foot = document.createElement("div");
         foot.className = "ad-foot";
+        const info = document.createElement("div");
         const t = document.createElement("div");
         t.className = "t";
         t.textContent = o.title;
+        info.append(t);
+
+        const closed = isClosed(o.last_date);
+        if (o.last_date) {
+          const d = document.createElement("div");
+          d.className = "deadline" + (closed ? " closed" : "");
+          d.textContent = (closed ? "Closed on: " : "Last date: ") + fmtDate(o.last_date);
+          info.append(d);
+        }
+
         const b = document.createElement("button");
         b.type = "button";
         b.className = "btn";
-        b.textContent = "Apply";
-        b.addEventListener("click", () => openForm(o));
+        if (closed) {
+          b.textContent = "Applications closed";
+          b.disabled = true;
+        } else {
+          b.textContent = "Apply";
+          b.addEventListener("click", () => openForm(o));
+        }
 
-        foot.append(t, b);
+        foot.append(info, b);
         card.append(img, foot);
         list.append(card);
       });

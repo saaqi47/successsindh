@@ -110,6 +110,10 @@
   .form-msg.show { display: block; }
   .form-msg.good { background: #e6f5ec; color: var(--ok); }
 
+  .forgot { text-align: right; margin: -6px 0 12px; }
+  .linkbtn { appearance: none; border: 0; background: none; font: inherit; font-weight: 700; font-size: .9rem; color: var(--green); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .linkbtn:hover { color: var(--green-dark); }
+
   /* Dashboard */
   .dash { max-width: 760px; margin: 0 auto; }
   .whoami { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; border-radius: 20px; padding: 16px 18px; margin-bottom: 22px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
@@ -273,6 +277,7 @@
           <div class="err">Enter your password.</div>
         </div>
         <label class="showpw"><input type="checkbox" id="l_show"> Show password</label>
+        <div class="forgot"><button type="button" class="linkbtn" id="forgotLink">Forgot password?</button></div>
         <div class="form-msg" id="loginMsg" role="alert"></div>
         <button type="submit" class="btn block" id="loginBtn">Login</button>
       </form>
@@ -307,6 +312,42 @@
         <div class="actions" style="margin-top:12px">
           <button type="button" class="btn ghost small" id="resendBtn">Resend code</button>
           <button type="button" class="btn ghost small" id="changeEmailBtn">Change email</button>
+        </div>
+      </form>
+
+      <form id="forgotForm" novalidate hidden>
+        <p class="intro">Enter your registered email. We will send a code to reset your password.</p>
+        <div class="field">
+          <label for="f_email">Email <span class="req">*</span></label>
+          <input type="email" id="f_email" autocomplete="email">
+          <div class="err">Enter a valid email.</div>
+        </div>
+        <div class="form-msg" id="forgotMsg" role="alert"></div>
+        <button type="submit" class="btn block" id="forgotBtn">Send code</button>
+        <div class="actions" style="margin-top:12px">
+          <button type="button" class="btn ghost small" id="forgotBack">Back to login</button>
+        </div>
+      </form>
+
+      <form id="resetForm" novalidate hidden>
+        <p class="intro">We sent a code to <b id="x_email_show"></b>. Enter it and choose a new password. Check your Spam folder too.</p>
+        <div class="field">
+          <label for="x_code">Code <span class="req">*</span></label>
+          <input type="text" id="x_code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="Enter code">
+          <div class="err">Enter the code from your email.</div>
+        </div>
+        <div class="field">
+          <label for="x_pass">New password <span class="req">*</span></label>
+          <input type="password" id="x_pass" autocomplete="new-password">
+          <div class="hint">At least 6 characters.</div>
+          <div class="err">Password must be at least 6 characters.</div>
+        </div>
+        <label class="showpw"><input type="checkbox" id="x_show"> Show password</label>
+        <div class="form-msg" id="resetMsg" role="alert"></div>
+        <button type="submit" class="btn block" id="resetBtn">Change password</button>
+        <div class="actions" style="margin-top:12px">
+          <button type="button" class="btn ghost small" id="resetResendBtn">Resend code</button>
+          <button type="button" class="btn ghost small" id="resetBack">Back to login</button>
         </div>
       </form>
     </div>
@@ -485,6 +526,8 @@
     $("loginForm").hidden = mode !== "login";
     $("regForm").hidden = mode !== "reg";
     $("verifyForm").hidden = mode !== "verify";
+    $("forgotForm").hidden = mode !== "forgot";
+    $("resetForm").hidden = mode !== "reset";
   }
   $("tabLogin").onclick = () => setTab("login");
   $("tabReg").onclick = () => setTab("reg");
@@ -555,6 +598,114 @@
       msg("verifyMsg", "Network problem. Check your internet and try again.");
     } finally {
       btn.disabled = false; btn.textContent = "Verify and continue";
+    }
+  });
+
+  /* ---------- forgot password (code by email) ---------- */
+  let resetEmail = "";
+  const cdTimers = {};
+  function cooldown(btnId, label, sec) {
+    const btn = $(btnId);
+    let left = sec || 60;
+    clearInterval(cdTimers[btnId]);
+    btn.disabled = true; btn.textContent = label + " (" + left + ")";
+    cdTimers[btnId] = setInterval(() => {
+      left--;
+      if (left <= 0) { clearInterval(cdTimers[btnId]); btn.disabled = false; btn.textContent = label; }
+      else btn.textContent = label + " (" + left + ")";
+    }, 1000);
+  }
+  async function sendRecovery(email) {
+    const r = await fetch(SUPABASE_URL + "/auth/v1/recover", {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json().catch(() => ({}));
+    return { ok: r.ok, d };
+  }
+  $("x_show").onchange = (e) => { $("x_pass").type = e.target.checked ? "text" : "password"; };
+  $("x_code").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10); });
+  $("forgotLink").onclick = () => {
+    $("f_email").value = $("l_email").value.trim();
+    clearInvalid($("forgotForm")); msg("forgotMsg", "");
+    setTab("forgot");
+  };
+  $("forgotBack").onclick = () => setTab("login");
+  $("resetBack").onclick = () => { clearInterval(cdTimers.resetResendBtn); setTab("login"); };
+
+  $("forgotForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg("forgotMsg", "");
+    const email = $("f_email").value.trim();
+    if (mark("f_email", !emailOk(email))) return;
+    const btn = $("forgotBtn");
+    btn.disabled = true; btn.textContent = "Sending...";
+    try {
+      const { ok, d } = await sendRecovery(email);
+      if (!ok) { msg("forgotMsg", authError(d, "Could not send the code. Please try again.")); return; }
+      resetEmail = email;
+      $("x_email_show").textContent = email;
+      $("x_code").value = ""; $("x_pass").value = "";
+      clearInvalid($("resetForm")); msg("resetMsg", "If this email is registered, a code was sent.", true);
+      setTab("reset");
+      cooldown("resetResendBtn", "Resend code", 60);
+    } catch (err) {
+      msg("forgotMsg", "Network problem. Check your internet and try again.");
+    } finally {
+      btn.disabled = false; btn.textContent = "Send code";
+    }
+  });
+
+  $("resetResendBtn").onclick = async () => {
+    msg("resetMsg", "");
+    try {
+      const { ok, d } = await sendRecovery(resetEmail);
+      if (!ok) { msg("resetMsg", authError(d, "Could not send the code. Please try again.")); return; }
+      msg("resetMsg", "A new code was sent. Check your email.", true);
+      cooldown("resetResendBtn", "Resend code", 60);
+    } catch (e) { msg("resetMsg", "Network problem. Check your internet and try again."); }
+  };
+
+  $("resetForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg("resetMsg", "");
+    const code = $("x_code").value.trim();
+    let bad = false;
+    bad = mark("x_code", !/^\d{6,10}$/.test(code)) || bad;
+    bad = mark("x_pass", $("x_pass").value.length < 6) || bad;
+    if (bad) return;
+    const btn = $("resetBtn");
+    btn.disabled = true; btn.textContent = "Changing...";
+    try {
+      const r = await fetch(SUPABASE_URL + "/auth/v1/verify", {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "recovery", email: resetEmail, token: code })
+      });
+      const d = await r.json().catch(() => ({}));
+      const s2 = normalizeSession(d);
+      if (!r.ok || !s2) { msg("resetMsg", "Wrong or expired code. Check the code or tap Resend code."); return; }
+
+      const u = await fetch(SUPABASE_URL + "/auth/v1/user", {
+        method: "PUT",
+        headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + s2.access_token, "Content-Type": "application/json" },
+        body: JSON.stringify({ password: $("x_pass").value })
+      });
+      const ud = await u.json().catch(() => ({}));
+      if (!u.ok) {
+        const t = String((ud && (ud.msg || ud.message || ud.error_code)) || "").toLowerCase();
+        msg("resetMsg", t.includes("different") || t.includes("same_password")
+          ? "Choose a new password that is different from your old one."
+          : authError(ud, "Could not change the password. Please try again."));
+        return;
+      }
+      saveSession(s2);
+      await enterDashboard();
+    } catch (err) {
+      msg("resetMsg", "Network problem. Check your internet and try again.");
+    } finally {
+      btn.disabled = false; btn.textContent = "Change password";
     }
   });
 

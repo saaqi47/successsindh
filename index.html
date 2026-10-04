@@ -114,6 +114,57 @@
   .linkbtn { appearance: none; border: 0; background: none; font: inherit; font-weight: 700; font-size: .9rem; color: var(--green); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
   .linkbtn:hover { color: var(--green-dark); }
 
+  /* App menu + pages */
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 24px rgba(10,37,82,.08); }
+  .tb { appearance: none; border: 0; background: none; font: inherit; font-size: .72rem; font-weight: 700; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px; border-radius: 12px; cursor: pointer; transition: background .15s, color .15s; }
+  .tb svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tb.on { color: var(--green); background: var(--green-soft); }
+  .tb.out { color: var(--danger); }
+  @media (min-width: 820px) { .tabbar { left: 50%; right: auto; transform: translateX(-50%); bottom: 16px; width: min(560px, 92vw); border: 1px solid var(--line); border-radius: 20px; } }
+  body.has-tabbar main { padding-bottom: 110px; }
+  body.has-tabbar footer { padding-bottom: 96px; }
+
+  .ptitle { display: flex; align-items: center; gap: 12px; margin: 6px 0 16px; font-size: 1.25rem; font-weight: 800; color: var(--green-dark); }
+  .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--green); color: #fff; flex: none; box-shadow: 0 6px 14px rgba(29,95,216,.25); }
+  .ico.gold { background: var(--gold); color: #2b2100; box-shadow: 0 6px 14px rgba(217,168,38,.3); }
+  .ico svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .card-box { background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; }
+  .prof-head { display: flex; align-items: center; gap: 14px; padding: 18px; background: linear-gradient(135deg, var(--green-soft), #fff); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .prof-head .ico { width: 52px; height: 52px; border-radius: 16px; }
+  .prof-head .ico svg { width: 28px; height: 28px; }
+  .prof-head b { display: block; color: var(--green-dark); }
+  .prof-head small { color: var(--muted); display: block; max-width: 30ch; }
+  .status { margin-left: auto; font-size: .8rem; font-weight: 800; padding: 5px 12px; border-radius: 99px; background: var(--gold-soft); color: #7a5a00; border: 1px solid #f0dca0; }
+  .status.ok { background: #e6f5ec; color: var(--ok); border-color: #bfe3cd; }
+  #profileForm { padding: 18px; }
+  .sec { margin: 22px 0 12px; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--green); font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .sec:first-child { margin-top: 0; }
+  .sec::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .phone { display: flex; align-items: stretch; }
+  .phone .pre { display: grid; place-items: center; padding: 0 14px; background: var(--green-soft); border: 1.5px solid var(--line); border-right: 0; border-radius: 12px 0 0 12px; font-weight: 800; color: var(--green-dark); }
+  .phone input { border-radius: 0 12px 12px 0; }
+  .field.invalid .phone .pre { border-color: var(--danger); }
+  #msField { display: none; padding: 12px; background: var(--green-soft); border-radius: 12px; }
+  #msField.show { display: block; animation: pop .18s ease-out; }
+
+  .notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--gold-soft); border: 1px solid #f0dca0; border-radius: 16px; padding: 14px 16px; margin-bottom: 18px; }
+  .notice b { display: block; color: #5c4300; }
+  .notice span { color: #7a5a00; font-size: .9rem; }
+
+  .app-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .app-item .t { font-weight: 800; color: var(--green-dark); }
+  .app-item small { color: var(--muted); display: block; }
+  .pill { font-size: .78rem; font-weight: 800; padding: 4px 12px; border-radius: 99px; background: var(--gold-soft); color: #7a5a00; border: 1px solid #f0dca0; white-space: nowrap; }
+  .pill.paid { background: #e6f5ec; color: var(--ok); border-color: #bfe3cd; }
+
+  .sum { padding: 6px 20px 4px; }
+  .sum-row { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: .95rem; }
+  .sum-row span { color: var(--muted); }
+  .sum-row b { text-align: right; word-break: break-word; }
+  .dlg-body { padding: 14px 20px 6px; color: var(--muted); }
+  .dlg-actions { padding: 14px 20px 20px; }
+
   /* Dashboard */
   .dash { max-width: 760px; margin: 0 auto; }
   .whoami { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; border-radius: 20px; padding: 16px 18px; margin-bottom: 22px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
@@ -368,14 +419,103 @@
         <div class="n" id="who"></div>
         <small id="whoSub"></small>
       </div>
-      <button type="button" class="btn ghost small" id="logoutBtn">Logout</button>
     </div>
-    <h2 class="page-title">Olympiads open for applications</h2>
-    <div id="list"></div>
+
+    <!-- Page: Dashboard -->
+    <div id="pgDash">
+      <div class="notice" id="profileNotice" hidden>
+        <div><b>Complete your profile</b><span>You need a complete profile before you can apply.</span></div>
+        <button type="button" class="btn gold small" id="noticeBtn">Complete profile</button>
+      </div>
+      <h2 class="ptitle"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Olympiads open for applications</h2>
+      <div id="list"></div>
+    </div>
+
+    <!-- Page: My Profile -->
+    <div id="pgProfile" hidden>
+      <h2 class="ptitle"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>My Profile</h2>
+      <div class="card-box">
+        <div class="prof-head">
+          <span class="ico gold"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/></svg></span>
+          <div><b>Student profile</b><small>Fill in all fields. Only you and the admin can see this data.</small></div>
+          <span class="status" id="profStatus">Incomplete</span>
+        </div>
+        <form id="profileForm" novalidate>
+          <div class="sec">Personal</div>
+          <div class="field">
+            <label for="p_name">Full Name <span class="req">*</span></label>
+            <input type="text" id="p_name" autocomplete="name" maxlength="80">
+            <div class="err">Enter your full name.</div>
+          </div>
+          <div class="field">
+            <label for="p_father">Father's Name <span class="req">*</span></label>
+            <input type="text" id="p_father" maxlength="80">
+            <div class="err">Enter your father's name.</div>
+          </div>
+          <div class="field">
+            <label for="p_cnic">B-Form / C.N.I.C No. <span class="req">*</span></label>
+            <input type="text" id="p_cnic" inputmode="numeric" maxlength="13" placeholder="13 digits, no dashes">
+            <div class="err">Enter 13 digits without dashes.</div>
+          </div>
+
+          <div class="sec">Education</div>
+          <div class="field">
+            <label for="p_cls">Class <span class="req">*</span></label>
+            <select id="p_cls"></select>
+            <div class="err">Select your class.</div>
+          </div>
+          <div class="field" id="msField">
+            <label for="p_marksheet">Marksheet (required for 10th) <span class="req">*</span></label>
+            <div class="file"><input type="file" id="p_marksheet" accept="image/jpeg,image/png"></div>
+            <img id="p_msPreview" class="preview" alt="Marksheet preview">
+            <div class="hint" id="msHint">JPG or PNG photo, up to 5 MB.</div>
+            <div class="err" id="msErr">Upload your marksheet (required for class 10th).</div>
+          </div>
+          <div class="field">
+            <label for="p_school">School <span class="req">*</span></label>
+            <input type="text" id="p_school" maxlength="120">
+            <div class="err">Enter your school name.</div>
+          </div>
+
+          <div class="sec">Contact &amp; location</div>
+          <div class="field">
+            <label for="p_phone">Contact No. <span class="req">*</span></label>
+            <div class="phone"><span class="pre">+92</span><input type="tel" id="p_phone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="3XXXXXXXXX"></div>
+            <div class="err">Enter 10 digits starting with 3, for example 3001234567.</div>
+          </div>
+          <div class="field">
+            <label for="p_city">City <span class="req">*</span></label>
+            <select id="p_city"></select>
+            <div class="err">Select your city.</div>
+          </div>
+          <div class="field">
+            <label for="p_district">District <span class="req">*</span></label>
+            <select id="p_district"></select>
+            <div class="err">Select your district.</div>
+          </div>
+
+          <div class="form-msg" id="profMsg" role="alert"></div>
+          <button type="submit" class="btn block" id="profBtn">Save profile</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Page: My Applications -->
+    <div id="pgApps" hidden>
+      <h2 class="ptitle"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 14l2 2 4-4"/></svg></span>My Applications</h2>
+      <div id="appsList"></div>
+    </div>
   </section>
 
   <div id="boot" class="state"><div class="spinner"></div>Loading...</div>
 </main>
+
+<nav id="tabbar" class="tabbar" hidden aria-label="Main menu">
+  <button type="button" class="tb on" data-page="dash"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></button>
+  <button type="button" class="tb" data-page="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span>My Profile</span></button>
+  <button type="button" class="tb" data-page="apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 14l2 2 4-4"/></svg><span>Applications</span></button>
+  <button type="button" class="tb out" id="logoutBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Logout</span></button>
+</nav>
 
 <footer><b>SUCCESS SINDH PORTAL</b> &nbsp;&bull;&nbsp; <span class="gold">Way to Success</span><br>Admin: Rashid Ali (SaaQi)</footer>
 
@@ -383,52 +523,27 @@
 <dialog id="dlg" aria-labelledby="dlgTitle">
   <div id="formView">
     <div class="dlg-head">
-      <div><h2 id="dlgTitle">Apply</h2><small id="dlgSub"></small></div>
+      <div><h2 id="dlgTitle">Confirm application</h2><small id="dlgSub"></small></div>
       <button type="button" class="x" id="closeBtn" aria-label="Close">&times;</button>
     </div>
-    <form id="applyForm" novalidate>
-      <div class="field">
-        <label for="a_name">Name <span class="req">*</span></label>
-        <input type="text" id="a_name" maxlength="80">
-        <div class="err">Enter your name.</div>
-      </div>
-      <div class="field">
-        <label for="a_father">Father's Name <span class="req">*</span></label>
-        <input type="text" id="a_father" maxlength="80">
-        <div class="err">Enter your father's name.</div>
-      </div>
-      <div class="field">
-        <label for="a_cls">Class <span class="req">*</span></label>
-        <select id="a_cls">
-          <option value="">Select your class</option>
-          <option>4th</option><option>5th</option><option>6th</option>
-          <option>7th</option><option>8th</option><option>9th</option><option>10th</option>
-        </select>
-        <div class="err">Select your class.</div>
-      </div>
-      <div class="field" id="marksheetField">
-        <label for="marksheet">Marksheet (required for 10th) <span class="req">*</span></label>
-        <div class="file"><input type="file" id="marksheet" accept="image/jpeg,image/png"></div>
-        <img id="preview" class="preview" alt="Marksheet preview">
-        <div class="hint">JPG or PNG photo, up to 5 MB.</div>
-        <div class="err" id="marksheetErr">Upload your marksheet to apply.</div>
-      </div>
-      <div class="field">
-        <label for="a_phone">Phone Number <span class="req">*</span></label>
-        <input type="tel" id="a_phone" inputmode="numeric" maxlength="11" placeholder="03XXXXXXXXX">
-        <div class="err">Enter an 11-digit number starting with 03.</div>
-      </div>
-      <div class="field">
-        <label for="a_address">Address <span class="req">*</span></label>
-        <textarea id="a_address" maxlength="250"></textarea>
-        <div class="err">Enter your address.</div>
-      </div>
-      <div class="form-msg" id="formMsg" role="alert"></div>
-      <div class="actions">
-        <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
-        <button type="submit" class="btn" id="submitBtn">Submit application</button>
-      </div>
-    </form>
+    <div class="sum" id="summary"></div>
+    <div class="dlg-body">Your application will be sent with the details above.</div>
+    <div class="form-msg" id="formMsg" role="alert" style="margin:0 20px 12px"></div>
+    <div class="actions dlg-actions">
+      <button type="button" class="btn ghost" id="editBtn">Edit profile</button>
+      <button type="button" class="btn" id="submitBtn">Confirm &amp; Apply</button>
+    </div>
+  </div>
+  <div id="incView" hidden>
+    <div class="dlg-head">
+      <div><h2>Complete your profile</h2></div>
+      <button type="button" class="x" id="incClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="dlg-body">Please complete your profile first: all fields, and the marksheet for class 10th. After that you can apply in one tap.</div>
+    <div class="actions dlg-actions">
+      <button type="button" class="btn ghost" id="incCancel">Not now</button>
+      <button type="button" class="btn" id="incGo">Complete profile</button>
+    </div>
   </div>
   <div id="doneView" class="done" hidden>
     <div class="tick">&#10003;</div>
@@ -491,6 +606,8 @@
     $("boot").hidden = true;
     $("authView").hidden = view !== "auth";
     $("dashView").hidden = view !== "dash";
+    $("tabbar").hidden = view !== "dash";
+    document.body.classList.toggle("has-tabbar", view === "dash");
   }
 
   /* ---------- helpers ---------- */
@@ -505,7 +622,6 @@
   const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const phoneOk = (v) => /^03\d{9}$/.test(v);
   function digitsOnly(el) { el.addEventListener("input", () => { el.value = el.value.replace(/\D/g, "").slice(0, 11); }); }
-  digitsOnly($("a_phone"));
   $("l_show").onchange = (e) => { $("l_pass").type = e.target.checked ? "text" : "password"; };
   $("r_show").onchange = (e) => { $("r_pass").type = e.target.checked ? "text" : "password"; };
 
@@ -806,6 +922,174 @@
     profile = rows[0] || null;
   }
 
+  /* ---------- lists ---------- */
+  const CITIES = ["Ghotki", "Mirpur Mathelo", "Daharki", "Ubauro", "Khangarh", "Adilpur", "Other"];
+  const DISTRICTS = ["Badin", "Dadu", "Ghotki", "Hyderabad", "Jacobabad", "Jamshoro", "Karachi Central", "Karachi East", "Karachi South", "Karachi West", "Kashmore", "Keamari", "Khairpur", "Korangi", "Larkana", "Malir", "Matiari", "Mirpurkhas", "Naushahro Feroze", "Qambar Shahdadkot", "Sanghar", "Shaheed Benazirabad", "Shikarpur", "Sujawal", "Sukkur", "Tando Allahyar", "Tando Muhammad Khan", "Tharparkar", "Thatta", "Umerkot"];
+  function fillSelect(id, list, ph) {
+    const el = $(id); el.innerHTML = "";
+    const o0 = document.createElement("option"); o0.value = ""; o0.textContent = ph; el.append(o0);
+    list.forEach((v) => { const o = document.createElement("option"); o.value = v; o.textContent = v; el.append(o); });
+  }
+  fillSelect("p_cls", ["4th", "5th", "6th", "7th", "8th", "9th", "10th"], "Select your class");
+  fillSelect("p_city", CITIES, "Select your city");
+  fillSelect("p_district", DISTRICTS, "Select your district");
+
+  /* ---------- profile helpers ---------- */
+  function phoneDigits(p) {
+    let d = String(p || "").replace(/\D/g, "");
+    if (d.startsWith("92")) d = d.slice(2); else if (d.startsWith("0")) d = d.slice(1);
+    return d.slice(0, 10);
+  }
+  function profileComplete(p) {
+    return !!p && !!(p.name && p.father_name && /^\d{13}$/.test(p.cnic || "") && p.class &&
+      /^3\d{9}$/.test(phoneDigits(p.phone)) && p.school && p.city && p.district && (p.class !== "10th" || p.marksheet_url));
+  }
+  function updateProfileUI() {
+    const ok = profileComplete(profile);
+    $("profStatus").textContent = ok ? "Complete \u2713" : "Incomplete";
+    $("profStatus").classList.toggle("ok", ok);
+    $("profileNotice").hidden = ok;
+  }
+
+  /* ---------- pages (menu) ---------- */
+  function goPage(name, noScroll) {
+    $("pgDash").hidden = name !== "dash";
+    $("pgProfile").hidden = name !== "profile";
+    $("pgApps").hidden = name !== "apps";
+    document.querySelectorAll(".tb[data-page]").forEach((b) => b.classList.toggle("on", b.dataset.page === name));
+    if (name === "profile") fillProfileForm();
+    if (name === "apps") loadApps();
+    if (!noScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.querySelectorAll(".tb[data-page]").forEach((b) => b.addEventListener("click", () => goPage(b.dataset.page)));
+  $("noticeBtn").onclick = () => goPage("profile");
+
+  /* ---------- my profile form ---------- */
+  function fillProfileForm() {
+    clearInvalid($("profileForm")); msg("profMsg", "");
+    const p = profile || {};
+    $("p_name").value = p.name || ""; $("p_father").value = p.father_name || ""; $("p_cnic").value = p.cnic || "";
+    $("p_cls").value = p.class || ""; $("p_school").value = p.school || "";
+    $("p_phone").value = phoneDigits(p.phone);
+    $("p_city").value = p.city || ""; $("p_district").value = p.district || "";
+    $("p_marksheet").value = "";
+    showMarksheet();
+  }
+  function showMarksheet() {
+    const is10 = $("p_cls").value === "10th";
+    $("msField").classList.toggle("show", is10);
+    const img = $("p_msPreview"), f = $("p_marksheet").files[0];
+    if (f) { img.src = URL.createObjectURL(f); img.style.display = "block"; $("msHint").textContent = "New marksheet selected."; }
+    else if (is10 && profile && profile.marksheet_url) { img.src = profile.marksheet_url; img.style.display = "block"; $("msHint").textContent = "Marksheet uploaded. Choose a new file only to replace it."; }
+    else { img.style.display = "none"; $("msHint").textContent = "JPG or PNG photo, up to 5 MB."; }
+  }
+  $("p_cls").addEventListener("change", showMarksheet);
+  $("p_marksheet").addEventListener("change", () => { $("msField").classList.remove("invalid"); showMarksheet(); });
+  $("p_cnic").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 13); });
+  $("p_phone").addEventListener("input", (e) => {
+    let d = e.target.value.replace(/\D/g, "");
+    if (d.startsWith("92") && d.length > 10) d = d.slice(2);
+    e.target.value = d.replace(/^0+/, "").slice(0, 10);
+  });
+
+  function validateProfile() {
+    let bad = false;
+    bad = mark("p_name", !$("p_name").value.trim()) || bad;
+    bad = mark("p_father", !$("p_father").value.trim()) || bad;
+    bad = mark("p_cnic", !/^\d{13}$/.test($("p_cnic").value)) || bad;
+    bad = mark("p_cls", !$("p_cls").value) || bad;
+    bad = mark("p_school", !$("p_school").value.trim()) || bad;
+    bad = mark("p_phone", !/^3\d{9}$/.test($("p_phone").value)) || bad;
+    bad = mark("p_city", !$("p_city").value) || bad;
+    bad = mark("p_district", !$("p_district").value) || bad;
+    if ($("p_cls").value === "10th") {
+      const f = $("p_marksheet").files[0];
+      let m = "";
+      if (f) {
+        if (!/^image\/(jpeg|png)$/.test(f.type)) m = "Marksheet must be a JPG or PNG photo.";
+        else if (f.size > 5 * 1024 * 1024) m = "Marksheet is too large. Maximum size is 5 MB.";
+      } else if (!(profile && profile.marksheet_url)) m = "Upload your marksheet (required for class 10th).";
+      $("msErr").textContent = m || "Upload your marksheet (required for class 10th).";
+      bad = mark("p_marksheet", !!m) || bad;
+    } else { mark("p_marksheet", false); }
+    return !bad;
+  }
+
+  $("profileForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg("profMsg", "");
+    if (!validateProfile()) { const f = $("profileForm").querySelector(".field.invalid"); if (f) f.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    const btn = $("profBtn");
+    btn.disabled = true; btn.textContent = "Saving...";
+    try {
+      const cls = $("p_cls").value;
+      let marksheetUrl = null;
+      if (cls === "10th") {
+        marksheetUrl = profile && profile.marksheet_url ? profile.marksheet_url : null;
+        const file = $("p_marksheet").files[0];
+        if (file) {
+          const ext = file.type === "image/png" ? "png" : "jpg";
+          const path = session.user.id + "/" + Date.now() + "." + ext;
+          const up = await authed("/storage/v1/object/marksheets/" + path, { method: "POST", headers: { "Content-Type": file.type }, body: file });
+          if (!up.ok) throw new Error("upload");
+          marksheetUrl = SUPABASE_URL + "/storage/v1/object/public/marksheets/" + path;
+        }
+      }
+      const row = {
+        id: session.user.id, name: $("p_name").value.trim(), father_name: $("p_father").value.trim(),
+        cnic: $("p_cnic").value, class: cls, phone: "+92" + $("p_phone").value,
+        school: $("p_school").value.trim(), city: $("p_city").value, district: $("p_district").value,
+        marksheet_url: marksheetUrl
+      };
+      const r = await authed("/rest/v1/profiles?on_conflict=id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },
+        body: JSON.stringify(row)
+      });
+      if (!r.ok) throw new Error("save");
+      const saved = await r.json();
+      profile = Array.isArray(saved) && saved[0] ? saved[0] : row;
+      setHeader(); updateProfileUI();
+      $("p_marksheet").value = ""; showMarksheet();
+      if (pendingApply) { const o = pendingApply; pendingApply = null; goPage("dash"); openForm(o); }
+      else { msg("profMsg", "Profile saved \u2713", true); $("profMsg").scrollIntoView({ behavior: "smooth", block: "center" }); }
+    } catch (err) {
+      msg("profMsg", err.message === "upload" ? "Marksheet could not be uploaded. Check your internet and try again."
+        : err.message === "expired" ? "Your session expired. Please login again."
+        : "Could not save your profile. Check your internet and try again.");
+    } finally {
+      btn.disabled = false; btn.textContent = "Save profile";
+    }
+  });
+
+  /* ---------- my applications ---------- */
+  async function loadApps() {
+    const box = $("appsList");
+    box.innerHTML = '<div class="state"><div class="spinner"></div>Loading...</div>';
+    try {
+      const r = await authed("/rest/v1/applications?select=id,created_at,payment_status,olympiads(title)&order=created_at.desc");
+      if (!r.ok) throw new Error("apps");
+      const rows = await r.json();
+      box.innerHTML = "";
+      if (!rows.length) { box.innerHTML = '<div class="state">You have not applied yet. Open the Dashboard and tap Apply on an Olympiad.</div>'; return; }
+      rows.forEach((a) => {
+        const item = document.createElement("div"); item.className = "app-item";
+        const left = document.createElement("div");
+        const t = document.createElement("div"); t.className = "t"; t.textContent = (a.olympiads && a.olympiads.title) || "Olympiad";
+        const d = document.createElement("small");
+        d.textContent = "Applied on " + new Date(a.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+        left.append(t, d);
+        const paid = String(a.payment_status || "").toLowerCase() === "paid";
+        const pill = document.createElement("span"); pill.className = "pill" + (paid ? " paid" : "");
+        pill.textContent = paid ? "Paid" : "Unpaid";
+        item.append(left, pill);
+        box.append(item);
+      });
+    } catch (e) {
+      box.innerHTML = '<div class="state">Could not load your applications. Check your internet and try again.</div>';
+    }
+  }
+
   /* ---------- last date ---------- */
   function todayStr() {
     const d = new Date();
@@ -819,21 +1103,22 @@
 
   /* ---------- dashboard ---------- */
   async function enterDashboard() {
-    $("boot").hidden = false; $("authView").hidden = true; $("dashView").hidden = true;
+    $("boot").hidden = false; $("authView").hidden = true; $("dashView").hidden = true; $("tabbar").hidden = true;
     try {
       await loadProfile();
     } catch (e) {
       if (e.message === "expired") { saveSession(null); show("auth"); return; }
     }
-    setHeader();
-    show("dash");
+    setHeader(); updateProfileUI();
+    show("dash"); goPage("dash", true);
     await loadOlympiads();
   }
 
   function setHeader() {
-    $("who").textContent = "Welcome" + (profile ? ", " + profile.name : "");
-    $("avatar").textContent = ((profile ? profile.name : session.user.email) || "S").trim().charAt(0).toUpperCase();
-    $("whoSub").textContent = profile ? "Class " + profile.class + " \u2022 " + session.user.email : session.user.email;
+    const nm = profile && profile.name;
+    $("who").textContent = "Welcome" + (nm ? ", " + nm : "");
+    $("avatar").textContent = (nm || session.user.email || "S").trim().charAt(0).toUpperCase();
+    $("whoSub").textContent = (profile && profile.class ? "Class " + profile.class + " \u2022 " : "") + session.user.email;
   }
 
   async function loadOlympiads() {
@@ -892,113 +1177,72 @@
     });
   }
 
-  /* ---------- apply dialog ---------- */
-  const dlg = $("dlg"), form = $("applyForm");
-
+  /* ---------- apply (uses the saved profile) ---------- */
+  const dlg = $("dlg");
+  let pendingApply = null;
+  function dlgView(v) {
+    $("formView").hidden = v !== "form";
+    $("incView").hidden = v !== "inc";
+    $("doneView").hidden = v !== "done";
+  }
   function openForm(o) {
     currentOlympiad = o;
+    msg("formMsg", "");
+    if (!profileComplete(profile)) { dlgView("inc"); dlg.showModal(); return; }
     $("dlgSub").textContent = o.title;
-    form.reset(); clearInvalid(form); msg("formMsg", "");
-    $("preview").style.display = "none";
-    if (profile) {
-      $("a_name").value = profile.name; $("a_father").value = profile.father_name;
-      $("a_cls").value = profile.class; $("a_phone").value = profile.phone; $("a_address").value = profile.address;
-    }
-    $("marksheetField").classList.toggle("show", $("a_cls").value === "10th");
-    $("submitBtn").disabled = false; $("submitBtn").textContent = "Submit application";
-    $("formView").hidden = false; $("doneView").hidden = true;
+    const rows = [
+      ["Name", profile.name], ["Father's Name", profile.father_name], ["B-Form / CNIC", profile.cnic],
+      ["Class", profile.class], ["Contact No.", "+92" + phoneDigits(profile.phone)],
+      ["School", profile.school], ["City", profile.city], ["District", profile.district]
+    ];
+    if (profile.class === "10th") rows.push(["Marksheet", "Uploaded \u2713"]);
+    const box = $("summary"); box.innerHTML = "";
+    rows.forEach(([k, v]) => {
+      const r = document.createElement("div"); r.className = "sum-row";
+      const a = document.createElement("span"); a.textContent = k;
+      const b = document.createElement("b"); b.textContent = v;
+      r.append(a, b); box.append(r);
+    });
+    $("submitBtn").disabled = false; $("submitBtn").textContent = "Confirm & Apply";
+    dlgView("form");
     dlg.showModal();
   }
   const closeForm = () => dlg.close();
-  $("closeBtn").onclick = closeForm; $("cancelBtn").onclick = closeForm; $("doneBtn").onclick = closeForm;
+  ["closeBtn", "incClose", "incCancel", "doneBtn"].forEach((id) => { $(id).onclick = closeForm; });
   dlg.addEventListener("click", (e) => { if (e.target === dlg) closeForm(); });
+  $("editBtn").onclick = () => { closeForm(); goPage("profile"); };
+  $("incGo").onclick = () => { pendingApply = currentOlympiad; closeForm(); goPage("profile"); };
 
-  $("a_cls").addEventListener("change", () => {
-    const is10 = $("a_cls").value === "10th";
-    $("marksheetField").classList.toggle("show", is10);
-    if (!is10) { $("marksheet").value = ""; $("preview").style.display = "none"; $("marksheetField").classList.remove("invalid"); }
-  });
-  $("marksheet").addEventListener("change", () => {
-    const f = $("marksheet").files[0], p = $("preview");
-    if (f) { p.src = URL.createObjectURL(f); p.style.display = "block"; } else { p.style.display = "none"; }
-  });
-
-  function validateApply() {
-    let bad = false;
-    bad = mark("a_name", !$("a_name").value.trim()) || bad;
-    bad = mark("a_father", !$("a_father").value.trim()) || bad;
-    bad = mark("a_cls", !$("a_cls").value) || bad;
-    bad = mark("a_phone", !phoneOk($("a_phone").value.trim())) || bad;
-    bad = mark("a_address", !$("a_address").value.trim()) || bad;
-    if ($("a_cls").value === "10th") {
-      const f = $("marksheet").files[0];
-      let m = "";
-      if (!f) m = "Upload your marksheet to apply.";
-      else if (!/^image\/(jpeg|png)$/.test(f.type)) m = "Marksheet must be a JPG or PNG photo.";
-      else if (f.size > 5 * 1024 * 1024) m = "Marksheet is too large. Maximum size is 5 MB.";
-      $("marksheetErr").textContent = m || "Upload your marksheet to apply.";
-      bad = mark("marksheet", !!m) || bad;
-    } else { mark("marksheet", false); }
-    return !bad;
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  $("submitBtn").addEventListener("click", async () => {
     msg("formMsg", "");
-    if (!validateApply()) { const f = form.querySelector(".field.invalid"); if (f) f.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-
     const btn = $("submitBtn");
     btn.disabled = true; btn.textContent = "Submitting...";
     try {
-      let marksheetUrl = null;
-      if ($("a_cls").value === "10th") {
-        const file = $("marksheet").files[0];
-        const ext = file.type === "image/png" ? "png" : "jpg";
-        const path = session.user.id + "/" + Date.now() + "." + ext;
-        const up = await authed("/storage/v1/object/marksheets/" + path, { method: "POST", headers: { "Content-Type": file.type }, body: file });
-        if (!up.ok) throw new Error("upload");
-        marksheetUrl = SUPABASE_URL + "/storage/v1/object/public/marksheets/" + path;
-      }
+      const is10 = profile.class === "10th";
       const res = await authed("/rest/v1/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
         body: JSON.stringify({
           olympiad_id: currentOlympiad.id,
           user_id: session.user.id,
-          name: $("a_name").value.trim(),
-          father_name: $("a_father").value.trim(),
-          class: $("a_cls").value,
-          phone: $("a_phone").value.trim(),
-          address: $("a_address").value.trim(),
-          marksheet_url: marksheetUrl
+          name: profile.name,
+          father_name: profile.father_name,
+          class: profile.class,
+          phone: "+92" + phoneDigits(profile.phone),
+          address: [profile.school, profile.city, profile.district].join(", "),
+          marksheet_url: is10 ? profile.marksheet_url : null
         })
       });
       if (res.status === 409) throw new Error("dup");
       if (!res.ok) throw new Error("insert");
-
-      const prof = {
-        id: session.user.id, name: $("a_name").value.trim(), father_name: $("a_father").value.trim(),
-        class: $("a_cls").value, phone: $("a_phone").value.trim(), address: $("a_address").value.trim()
-      };
-      try {
-        const pr = await authed("/rest/v1/profiles?on_conflict=id", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
-          body: JSON.stringify(prof)
-        });
-        if (pr.ok) { profile = prof; setHeader(); }
-      } catch (e) {}
-
       appliedIds.add(currentOlympiad.id);
-      $("formView").hidden = true; $("doneView").hidden = false;
+      dlgView("done");
       loadOlympiads();
     } catch (err) {
-      const text = err.message === "upload" ? "Marksheet could not be uploaded. Check your internet and try again."
-        : err.message === "dup" ? "You have already applied for this Olympiad."
+      msg("formMsg", err.message === "dup" ? "You have already applied for this Olympiad."
         : err.message === "expired" ? "Your session expired. Please login again."
-        : "Application could not be submitted. Check your internet and try again.";
-      msg("formMsg", text);
-      btn.disabled = false; btn.textContent = "Submit application";
+        : "Application could not be submitted. Check your internet and try again.");
+      btn.disabled = false; btn.textContent = "Confirm & Apply";
     }
   });
 

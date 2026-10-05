@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#1d5fd8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@600&family=Noto+Nastaliq+Urdu:wght@400&display=swap" rel="stylesheet">
 <style>
   :root {
     --green: #1d5fd8; --green-dark: #0a2552; --green-soft: #eaf1fc; --mint: #f0f5fd;
@@ -302,6 +302,9 @@
   .sl-ph .seat { margin-top: 6px; border: 2px solid var(--green-dark); border-radius: 6px; text-align: center; padding: 3px; }
   .sl-ph .seat small { display: block; font-size: .58rem; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
   .sl-ph .seat b { font-size: 1.1rem; color: var(--green-dark); }
+  .wa-note { background: var(--gold-soft); border: 1.5px solid var(--gold); border-radius: 12px; padding: 10px 12px; margin: 12px 0; text-align: center; color: var(--ink); }
+  .wa-note b { display: block; font-size: .88rem; }
+  .wa-note span { display: block; margin-top: 6px; font-family: "Noto Naskh Arabic", "Noto Nastaliq Urdu", "Segoe UI", Tahoma, serif; font-size: 1.08rem; font-weight: 600; line-height: 1.9; }
   .sc-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
 </style>
 </head>
@@ -1612,12 +1615,32 @@ function downloadPdf(bytes, name) {
 const ACC = { bank: "United Bank Limited (UBL)", title: "Rashid Ali", no: "0109398440152" };
 const WHATSAPP = "03170369398";
 
+const NOTE_EN = "Kindly share your Receipt to Our WhatsApp 03170369398. Thank you!";
+const NOTE_UR = "\u0646\u0648\u0679: \u0622\u067e \u0627\u067e\u0646\u06cc \u0631\u0633\u06cc\u062f \u06c1\u0645\u0627\u0631\u06d2 \u0648\u0627\u0679\u0633 \u0627\u06cc\u067e \u0646\u0645\u0628\u0631 \u067e\u0631 \u0628\u06be\u06cc\u062c \u062f\u06cc\u06ba\u06d4 \u0634\u06a9\u0631\u06cc\u06c1 !";
+async function urduNote(text, wPt, sizePt) {
+  try { if (document.fonts && document.fonts.load) await document.fonts.load('600 20px "Noto Naskh Arabic"', text); } catch (e) {}
+  const S = 5, W = Math.round(wPt * S), fs = sizePt * S, lh = fs * 1.75;
+  const font = '600 ' + fs + 'px "Noto Naskh Arabic","Noto Nastaliq Urdu","Jameel Noori Nastaleeq","Droid Arabic Naskh","Segoe UI",Tahoma,Arial,sans-serif';
+  const c = document.createElement("canvas"), g = c.getContext("2d");
+  g.font = font; g.direction = "rtl";
+  const words = text.split(" "), lines = []; let cur = "";
+  words.forEach((wd) => { const t = cur ? cur + " " + wd : wd; if (g.measureText(t).width <= W || !cur) cur = t; else { lines.push(cur); cur = wd; } });
+  if (cur) lines.push(cur);
+  c.width = W; c.height = Math.ceil(lines.length * lh + fs * 0.3);
+  const g2 = c.getContext("2d"); g2.font = font; g2.direction = "rtl"; g2.textAlign = "center"; g2.textBaseline = "alphabetic"; g2.fillStyle = "#13233f";
+  lines.forEach((ln, i) => g2.fillText(ln, W / 2, (i + 1) * lh - fs * 0.25));
+  const blob = await new Promise((res) => c.toBlob(res, "image/png"));
+  return { bytes: await blob.arrayBuffer(), w: wPt, h: c.height / S };
+}
+
 async function buildChallan(app) {
   const D = await newPdf(842, 595);
   const o = app.olympiads || {}, fee = (o.fee == null || o.fee === "") ? null : Number(o.fee);
   const sid = studentId || "-", seat = app.seat_no || "-", chNo = "CH-" + sid + "-" + seat;
   const issued = fmtD(app.created_at), due = o.last_date ? fmtDate(o.last_date) : "-";
   const W = 258, GAP = 14, X0 = 20, TOP = 16, BOT = 579;
+  const urData = await urduNote(NOTE_UR, W - 16 - 8, 8.4);
+  const urImg = await D.doc.embedPng(urData.bytes);
   ["BANK COPY", "OFFICE COPY", "STUDENT COPY"].forEach((label, i) => {
     const x = X0 + i * (W + GAP), iw = W - 16, ix = x + 8;
     D.rect(x, TOP, W, BOT - TOP, { stroke: "#0a2552", lw: 1.1 });
@@ -1660,30 +1683,62 @@ async function buildChallan(app) {
     D.text(words, ix + iw / 2, y + 41, D.fit(words, iw - 10, 7.2, false), { color: "#5b6b86", align: "c" });
     y += 54;
     // QR + signatures
-    D.qr("SSP|CHALLAN|" + chNo + "|" + (fee == null ? "" : fee), ix, y, 66);
-    D.text("Scan to verify", ix + 33, y + 75, 6, { color: "#5b6b86", align: "c" });
+    D.qr("SSP|CHALLAN|" + chNo + "|" + (fee == null ? "" : fee), ix, y, 60);
+    D.text("Scan to verify", ix + 30, y + 68, 6, { color: "#5b6b86", align: "c" });
     D.rect(ix + iw - 44, y, 44, 20, { stroke: "#c0312b", lw: 1.2 });
     D.text("UNPAID", ix + iw - 22, y + 13.5, 8.5, { bold: true, color: "#c0312b", align: "c" });
-    const sx = ix + 78, sw = iw - 78;
-    D.line(sx, y + 40, ix + iw, y + 40, { color: "#13233f", lw: 0.6 });
-    D.text("Cashier's Signature & Stamp", sx + sw / 2, y + 49, 6.5, { color: "#5b6b86", align: "c" });
-    D.line(sx, y + 70, ix + iw, y + 70, { color: "#13233f", lw: 0.6 });
-    D.text("Depositor's Signature", sx + sw / 2, y + 79, 6.5, { color: "#5b6b86", align: "c" });
-    y += 90;
-    D.wrap("After payment, send the receipt screenshot with your Student ID and Name on WhatsApp " + WHATSAPP + ". Your slip will be available in the portal once the payment is marked Paid.", iw, 6.6, false)
-      .forEach((ln) => { D.text(ln, ix, y, 6.6, { color: "#5b6b86" }); y += 8.4; });
-    D.text("Admin: Rashid Ali (SaaQi)", x + W / 2, BOT - 6, 6.5, { bold: true, color: "#0a2552", align: "c" });
+    const sx = ix + 70, sw = iw - 70;
+    D.line(sx, y + 34, ix + iw, y + 34, { color: "#13233f", lw: 0.6 });
+    D.text("Cashier's Signature & Stamp", sx + sw / 2, y + 43, 6.5, { color: "#5b6b86", align: "c" });
+    D.line(sx, y + 58, ix + iw, y + 58, { color: "#13233f", lw: 0.6 });
+    D.text("Depositor's Signature", sx + sw / 2, y + 67, 6.5, { color: "#5b6b86", align: "c" });
+    y += 80;
+    {
+      const en = D.wrap(NOTE_EN, iw - 14, 7.4, true).slice(0, 3), bh = 7 + en.length * 9.6 + 3 + urData.h + 5;
+      D.rect(ix, y - 4, iw, bh, { fill: "#fbf1d3", stroke: "#d9a826", lw: 0.8 });
+      let ny = y + 6; en.forEach((ln) => { D.text(ln, ix + iw / 2, ny, 7.4, { bold: true, color: "#13233f", align: "c" }); ny += 9.6; });
+      D.page.drawImage(urImg, { x: ix + 7, y: D.H - (ny - 3) - urData.h, width: urData.w, height: urData.h });
+    }
+    D.text("Admin: Rashid Ali (SaaQi)", x + W / 2, BOT - 5, 6.5, { bold: true, color: "#0a2552", align: "c" });
   });
   [X0 + W + GAP / 2, X0 + 2 * W + GAP * 1.5].forEach((cx) => D.line(cx, 6, cx, 589, { dash: [4, 3], lw: 0.6, color: "#8aa0c8" }));
   D.doc.setTitle("Fee Challan " + chNo); D.doc.setAuthor("SUCCESS SINDH PORTAL");
   return { bytes: await D.doc.save(), name: "Challan-" + sid + ".pdf" };
 }
 
+const SLIP_UR = [
+  "ہدایات:",
+  "۱۔ یہ سلپ امتحانی ہال میں ساتھ لائیں۔ QR کوڈ کو موڑنے یا خراب ہونے سے بچائیں۔",
+  "۲۔ امتحانی ہال میں تصدیق کے لیے اس سلپ پر موجود QR کوڈ اسکین کیا جائے گا۔",
+  "۳۔ اپنا اسٹوڈنٹ آئی ڈی اور سیٹ نمبر محفوظ رکھیں۔ تمام رابطوں کے لیے ان کی ضرورت ہوگی۔",
+  "۴۔ اپنے ساتھ بال پوائنٹ پین ضرور لائیں۔"
+];
+async function urduParas(items, wPt, sizePt) {
+  const fam = '"Jameel Noori Nastaleeq","Noto Nastaliq Urdu","Noto Naskh Arabic","Droid Arabic Naskh","Segoe UI",Tahoma,Arial,sans-serif';
+  try { if (document.fonts && document.fonts.load) await document.fonts.load('400 20px "Noto Nastaliq Urdu"', items.join(" ")); } catch (e) {}
+  const S = 4, W = Math.round(wPt * S), fs = sizePt * S, lh = fs * 2.3, gap = fs * 0.35, font = "400 " + fs + "px " + fam;
+  const m = document.createElement("canvas").getContext("2d"); m.font = font; m.direction = "rtl";
+  const paras = items.map((text) => {
+    const words = text.split(" "), lines = []; let cur = "";
+    words.forEach((wd) => { const t = cur ? cur + " " + wd : wd; if (m.measureText(t).width <= W || !cur) cur = t; else { lines.push(cur); cur = wd; } });
+    if (cur) lines.push(cur); return lines;
+  });
+  const n = paras.reduce((a, l) => a + l.length, 0);
+  const c = document.createElement("canvas"); c.width = W; c.height = Math.ceil(n * lh + paras.length * gap + fs * 0.4);
+  const g = c.getContext("2d"); g.font = font; g.direction = "rtl"; g.textAlign = "right"; g.textBaseline = "alphabetic"; g.fillStyle = "#13233f";
+  let y = 0;
+  paras.forEach((lines) => { lines.forEach((ln) => { y += lh; g.fillText(ln, W, y - lh * 0.3); }); y += gap; });
+  const blob = await new Promise((res) => c.toBlob(res, "image/png"));
+  return { bytes: await blob.arrayBuffer(), w: wPt, h: c.height / S };
+}
+
 async function buildSlip(app) {
   const D = await newPdf(595, 842);
   const o = app.olympiads || {}, p = profile || {};
   const sid = studentId || "-", seat = app.seat_no || "-";
-  const X = 30, W = 535, Y = 30, H = 500;
+  const X = 30, W = 535, Y = 30;
+  const ur = await urduParas(SLIP_UR, W - 36, 10);
+  const urImg = await D.doc.embedPng(ur.bytes);
   // header
   D.rect(X, Y, W, 74, { fill: "#0a2552" }); D.rect(X, Y + 74, W, 3.5, { fill: "#d9a826" });
   D.circle(X + 38, Y + 37, 23, "#d9a826"); D.circle(X + 38, Y + 37, 19, "#0a2552");
@@ -1709,9 +1764,10 @@ async function buildSlip(app) {
     const arr = lines ? D.wrap(val, fw, 11.5, true).slice(0, 2) : [val];
     arr.forEach((ln, i) => D.text(ln, fx, fy + 14 + i * 13, lines ? 11.5 : D.fit(ln, fw, 11.5, true), { bold: true }));
     const hgt = 14 + arr.length * 13 + 6;
-    D.line(fx, fy + hgt - 3, fx + fw, fy + hgt - 3, { color: "#dbe5f6", lw: 0.6 }); fy += hgt + 12;
+    D.line(fx, fy + hgt - 3, fx + fw, fy + hgt - 3, { color: "#dbe5f6", lw: 0.6 }); fy += hgt + 8;
   };
   field("NAME", p.name || "-"); field("FATHER'S NAME", p.father_name || "-"); field("CLASS", p.class || "-");
+  field("SCHOOL", p.school || "-", true);
   field("ADDRESS", [p.city, p.district].filter(Boolean).join(", ") || "-", true); field("B-FORM / C.N.I.C NO.", p.cnic || "-");
   // right: photo + seat
   const px = X + W - 18 - 112;
@@ -1726,20 +1782,25 @@ async function buildSlip(app) {
   D.rect(px - 2, by + 162, 116, 50, { stroke: "#0a2552", lw: 1.2 });
   D.text("SEAT NUMBER", px + 56, by + 176, 7.5, { bold: true, color: "#5b6b86", align: "c" });
   D.text(seat, px + 56, by + 202, 22, { bold: true, color: "#0a2552", align: "c" });
-  // instructions
-  let iy = Y + 372;
+  // instructions (English)
+  let iy = Math.max(fy, by + 222) + 20;
   D.line(X + 18, iy - 14, X + W - 18, iy - 14, { color: "#9db3d8", lw: 0.8 });
   D.text("INSTRUCTIONS", X + 18, iy, 8.5, { bold: true, color: "#1d5fd8" }); iy += 14;
   ["1. Bring this slip to the exam hall. Do not fold or damage the QR code.",
    "2. The QR code on this slip will be scanned for verification at the exam hall.",
-   "3. Keep your Student ID and Seat Number safe. They are needed for all communication."]
+   "3. Keep your Student ID and Seat Number safe. They are needed for all communication.",
+   "4. Bring a ball point pen."]
     .forEach((ln) => { D.text(ln, X + 18, iy, 8.6, { color: "#13233f" }); iy += 13; });
-  // signatures
-  const sy = Y + 458;
+  // instructions (Urdu)
+  const uy = iy + 4;
+  D.page.drawImage(urImg, { x: X + 18, y: D.H - uy - ur.h, width: ur.w, height: ur.h });
+  // signatures + footer
+  const sy = uy + ur.h + 34;
   D.line(X + 30, sy, X + 190, sy, { color: "#13233f", lw: 0.7 }); D.text("Student's Signature", X + 110, sy + 10, 7.5, { color: "#5b6b86", align: "c" });
   D.line(X + W - 190, sy, X + W - 30, sy, { color: "#13233f", lw: 0.7 }); D.text("Admin Signature", X + W - 110, sy + 10, 7.5, { color: "#5b6b86", align: "c" });
-  D.rect(X, Y + H - 22, W, 22, { fill: "#eaf1fc" });
-  D.text("SUCCESS SINDH PORTAL  |  Admin: Rashid Ali (SaaQi)  |  Issued " + fmtD(app.created_at), X + W / 2, Y + H - 8, 7.5, { bold: true, color: "#0a2552", align: "c" });
+  const fTop = sy + 26, H = fTop + 22 - Y;
+  D.rect(X, fTop, W, 22, { fill: "#eaf1fc" });
+  D.text("SUCCESS SINDH PORTAL  |  Admin: Rashid Ali (SaaQi)  |  Issued " + fmtD(app.created_at), X + W / 2, fTop + 14, 7.5, { bold: true, color: "#0a2552", align: "c" });
   D.rect(X, Y, W, H, { stroke: "#0a2552", lw: 1.3 });
   D.doc.setTitle("Admit Slip " + sid); D.doc.setAuthor("SUCCESS SINDH PORTAL");
   return { bytes: await D.doc.save(), name: "Slip-" + sid + ".pdf" };
@@ -1779,6 +1840,7 @@ async function buildSlip(app) {
           '<div class="kv"><span>Name</span><b>' + esc(p.name) + '</b></div>' +
           '<div class="kv"><span>Father\'s Name</span><b>' + esc(p.father_name) + '</b></div>' +
           '<div class="kv"><span>Class</span><b>' + esc(p.class) + '</b></div>' +
+          '<div class="kv"><span>School</span><b>' + esc(p.school) + '</b></div>' +
           '<div class="kv"><span>Address</span><b>' + esc([p.city, p.district].filter(Boolean).join(", ")) + '</b></div>' +
           '<div class="kv"><span>B-Form / CNIC</span><b>' + esc(p.cnic) + '</b></div></div>' +
           '<div class="sc-actions"><button type="button" class="btn block" data-act="slip">Download Slip (PDF)</button>' +
@@ -1793,7 +1855,8 @@ async function buildSlip(app) {
           '<div class="kv"><span>Account Title</span><b>' + esc(ACC.title) + '</b></div>' +
           '<div class="kv"><span>Account No.</span><b>' + esc(ACC.no) + '</b></div>' +
           '<div class="amt"><small>AMOUNT PAYABLE</small><b>' + esc(feeText(o)) + '</b></div></div>' +
-          '<p class="sc-note">Download the challan, pay at any UBL branch, then send the receipt screenshot with your Student ID and Name on WhatsApp ' + WHATSAPP + '. Once your payment is marked Paid, your Slip appears here.</p>' +
+          '<p class="sc-note">Download the challan and pay at any UBL branch. Once your payment is marked Paid, your Slip appears here.</p>' +
+          '<div class="wa-note"><b>' + NOTE_EN + '</b><span dir="rtl" lang="ur">' + NOTE_UR + '</span></div>' +
           '<div class="sc-actions"><button type="button" class="btn block" data-act="challan">Download Challan (PDF)</button></div>';
       }
       card.innerHTML = '<div class="sc-head"><b>' + esc(o.title || "Olympiad") + '</b><span class="pill' + (paid ? " paid" : "") + '">' + (paid ? "Paid" : "Unpaid") + '</span></div>' +

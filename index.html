@@ -255,7 +255,10 @@
   .tb { position: relative; overflow: hidden; }
   .tb::after { content: ""; position: absolute; inset: 0; border-radius: 12px; background: var(--green); opacity: 0; transform: scale(.2); }
   .tb:active::after { opacity: .13; transform: scale(1); transition: transform .25s, opacity .25s; }
-  .tabbar { grid-template-columns: repeat(5, 1fr) !important; gap: 2px !important; padding-left: 4px !important; padding-right: 4px !important; }
+  .tb[hidden] { display: none !important; }
+  .tabbar.six .tb { font-size: .6rem; }
+  .tabbar.six .tb span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tabbar { grid-template-columns: none !important; grid-auto-flow: column !important; grid-auto-columns: 1fr !important; gap: 2px !important; padding-left: 4px !important; padding-right: 4px !important; }
   .tb { font-size: .68rem; }
   dialog[open] { animation: popSpring .38s cubic-bezier(.2,1.3,.4,1); }
   @keyframes popSpring { from { opacity: 0; transform: translateY(26px) scale(.94); } to { opacity: 1; transform: none; } }
@@ -305,6 +308,31 @@
   .wa-note { background: var(--gold-soft); border: 1.5px solid var(--gold); border-radius: 12px; padding: 10px 12px; margin: 12px 0; text-align: center; color: var(--ink); }
   .wa-note b { display: block; font-size: .88rem; }
   .wa-note span { display: block; margin-top: 6px; font-family: "Noto Naskh Arabic", "Noto Nastaliq Urdu", "Segoe UI", Tahoma, serif; font-size: 1.08rem; font-weight: 600; line-height: 1.9; }
+
+  /* ===== VerifyMe ===== */
+  .vm-banner { background: var(--gold-soft); border: 1.5px solid var(--gold); color: var(--ink); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; font-size: .88rem; font-weight: 600; text-align: center; }
+  .vm-intro { color: var(--muted); font-size: .92rem; margin: -6px 0 14px; }
+  .vm-scan { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .vm-box { position: relative; border-radius: 18px; overflow: hidden; background: #000; margin: 0 auto 14px; aspect-ratio: 1 / 1; max-width: 420px; box-shadow: var(--shadow); }
+  .vm-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .vm-frame { position: absolute; inset: 14%; border: 3px solid var(--gold); border-radius: 16px; box-shadow: 0 0 0 999px rgba(0,0,0,.38); }
+  .vm-frame::after { content: ""; position: absolute; left: 6%; right: 6%; height: 3px; background: var(--gold); box-shadow: 0 0 14px var(--gold); top: 8%; animation: vmSweep 1.8s ease-in-out infinite alternate; }
+  @keyframes vmSweep { to { top: 90%; } }
+  .vm-box .btn { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); }
+  .vm-manual { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .vm-manual .row2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+  .vm-manual h3 { font-size: .95rem; color: var(--green-dark); margin: 0 0 10px; }
+  .vm-res { background: #fff; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; animation: popSpring .45s cubic-bezier(.2,1.3,.4,1) both; }
+  .vm-status { padding: 14px 16px; text-align: center; font-weight: 800; letter-spacing: .04em; font-size: 1.05rem; }
+  .vm-status small { display: block; font-weight: 600; letter-spacing: 0; font-size: .8rem; opacity: .85; margin-top: 2px; }
+  .vm-status.ok { background: #e4f6ec; color: #17804a; border-bottom: 3px solid #17804a; }
+  .vm-status.warn { background: #fff4d6; color: #9a6a00; border-bottom: 3px solid #d9a826; }
+  .vm-status.bad { background: #fde8e8; color: #c0312b; border-bottom: 3px solid #c0312b; }
+  .vm-body { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 14px 12px 4px; align-items: start; }
+  .vm-body .ids small { display: block; color: var(--muted); font-size: .66rem; font-weight: 700; letter-spacing: .1em; }
+  .vm-body .ids b { display: block; font-size: 1.35rem; color: var(--green-dark); letter-spacing: .05em; margin-bottom: 8px; }
+  .vm-body img { width: 104px; height: 138px; object-fit: cover; border: 2px solid var(--green-dark); border-radius: 8px; background: var(--green-soft); display: block; }
+  .vm-note { padding: 12px 14px; color: var(--muted); font-size: .9rem; }
   .sc-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
 </style>
 </head>
@@ -408,6 +436,7 @@
       </div>
     </section>
     <div class="below">
+      <div class="vm-banner" id="vmAuthNote" hidden>VerifyMe: login with the admin account to view the student's slip.</div>
       <div class="auth" id="authCard">
       <div class="tabs">
         <button type="button" class="tab on" id="tabLogin">Login</button>
@@ -512,6 +541,7 @@
 
   <!-- DASHBOARD -->
   <section id="dashView" class="dash" hidden>
+    <div class="vm-banner" id="vmNotice" hidden>VerifyMe is for the admin only. Please login with the admin account to scan slips.</div>
     <div class="whoami">
       <div class="avatar" id="avatar">S</div>
       <div class="who-t">
@@ -619,6 +649,30 @@
       <h2 class="ptitle"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2.5"/></svg></span>Challan &amp; Slip</h2>
       <div id="slipList"></div>
     </div>
+
+    <!-- Page: VerifyMe -->
+    <div id="pgVerify" hidden>
+      <h2 class="ptitle"><span class="ico gold"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3"/><path d="M16 4h3a1 1 0 0 1 1 1v3"/><path d="M20 16v3a1 1 0 0 1-1 1h-3"/><path d="M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M9 12l2 2 4-4"/></svg></span>VerifyMe</h2>
+      <p class="vm-intro">Scan the QR code on a student's slip to see the student's details and payment status.</p>
+      <div class="vm-scan">
+        <button type="button" class="btn block" id="vmScanBtn">Scan QR code</button>
+        <div class="form-msg" id="vmScanMsg" role="alert"></div>
+      </div>
+      <div class="vm-box" id="vmScanBox" hidden>
+        <video id="vmVideo" playsinline muted></video>
+        <div class="vm-frame"></div>
+        <button type="button" class="btn ghost small" id="vmStopBtn" style="background:#fff">Cancel</button>
+      </div>
+      <div class="vm-manual">
+        <h3>Or enter manually</h3>
+        <div class="row2">
+          <div class="field"><label for="vm_sid">Student ID <span class="req">*</span></label><input type="text" id="vm_sid" inputmode="numeric" maxlength="12" placeholder="e.g. 261001"></div>
+          <div class="field"><label for="vm_seat">Seat No.</label><input type="text" id="vm_seat" inputmode="numeric" maxlength="10" placeholder="optional"></div>
+        </div>
+        <button type="button" class="btn block" id="vmGoBtn">Verify</button>
+      </div>
+      <div id="vmResult"></div>
+    </div>
   </section>
 
   <div id="boot" class="state"><div class="spinner"></div>Loading...</div>
@@ -629,6 +683,7 @@
   <button type="button" class="tb" data-page="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span>Profile</span></button>
   <button type="button" class="tb" data-page="apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 14l2 2 4-4"/></svg><span>Applications</span></button>
   <button type="button" class="tb" data-page="slip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2.5"/></svg><span>Slip</span></button>
+  <button type="button" class="tb" id="tbVerify" data-page="verify" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3"/><path d="M16 4h3a1 1 0 0 1 1 1v3"/><path d="M20 16v3a1 1 0 0 1-1 1h-3"/><path d="M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M9 12l2 2 4-4"/></svg><span>VerifyMe</span></button>
   <button type="button" class="tb out" id="logoutBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Logout</span></button>
 </nav>
 
@@ -680,6 +735,9 @@
   let currentOlympiad = null;
   let studentId = null;
   let photoBlob = null;
+  let isAdmin = false;
+  let pendingVerify = null;
+  (function () { try { const v = new URLSearchParams(location.search).get("verify"); if (v) pendingVerify = v.trim(); } catch (e) {} })();
 
   /* ---------- session helpers ---------- */
   function saveSession(s) {
@@ -724,6 +782,7 @@
     $("authView").hidden = view !== "auth";
     $("dashView").hidden = view !== "dash";
     $("tabbar").hidden = view !== "dash";
+    $("vmAuthNote").hidden = !(view === "auth" && pendingVerify);
     document.body.classList.toggle("has-tabbar", view === "dash");
   }
 
@@ -1025,7 +1084,7 @@
     try {
       if (session) await fetch(SUPABASE_URL + "/auth/v1/logout", { method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + session.access_token } });
     } catch (e) {}
-    saveSession(null); profile = null; appliedIds = new Set(); studentId = null; photoBlob = null; curPage = null;
+    saveSession(null); profile = null; appliedIds = new Set(); studentId = null; photoBlob = null; curPage = null; isAdmin = false; $("tbVerify").hidden = true; $("tabbar").classList.remove("six"); stopScan(); $("vmResult").innerHTML = "";
     $("loginForm").reset(); $("regForm").reset();
     clearInterval(cooldownTimer); setTab("login"); show("auth");
   };
@@ -1076,8 +1135,8 @@
   }
 
   /* ---------- pages (menu) ---------- */
-  const PAGES = ["dash", "profile", "apps", "slip"];
-  const PGID = { dash: "pgDash", profile: "pgProfile", apps: "pgApps", slip: "pgSlip" };
+  const PAGES = ["dash", "profile", "apps", "slip", "verify"];
+  const PGID = { dash: "pgDash", profile: "pgProfile", apps: "pgApps", slip: "pgSlip", verify: "pgVerify" };
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let curPage = null, pgToken = 0;
   function goPage(name, noScroll) {
@@ -1092,6 +1151,7 @@
       if (name === "profile") fillProfileForm();
       if (name === "apps") loadApps();
       if (name === "slip") loadSlips();
+      if (name !== "verify") stopScan();
     };
     if (from && from !== name && !reduceMotion) {
       $(PGID[from]).classList.add("pg-out");
@@ -1294,9 +1354,15 @@
       if (e.message === "expired") { saveSession(null); show("auth"); return; }
     }
     await loadStudentId();
+    await loadAdmin();
     curPage = null;
     setHeader(); updateProfileUI();
     show("dash"); goPage("dash", true);
+    if (pendingVerify) {
+      const code = pendingVerify; pendingVerify = null;
+      try { history.replaceState(null, "", location.pathname); } catch (e) {}
+      if (isAdmin) { goPage("verify"); handleScanned(code); } else $("vmNotice").hidden = false;
+    }
     await loadOlympiads();
   }
 
@@ -1878,6 +1944,106 @@ async function buildSlip(app) {
       msgEl.textContent = "Could not create the PDF. Please try again."; msgEl.classList.add("show");
     } finally { btn.disabled = false; btn.textContent = label; }
   }
+
+
+  /* ---------- VerifyMe (admin) ---------- */
+  async function loadAdmin() {
+    isAdmin = false;
+    try {
+      const r = await authed("/rest/v1/rpc/is_admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      if (r.ok) isAdmin = (await r.json()) === true;
+    } catch (e) {}
+    $("tbVerify").hidden = !isAdmin;
+    $("tabbar").classList.toggle("six", isAdmin);
+    document.querySelector('.tb[data-page="dash"] span').textContent = isAdmin ? "Home" : "Dashboard";
+    document.querySelector('.tb[data-page="apps"] span').textContent = isAdmin ? "Apps" : "Applications";
+  }
+  function parseScan(text) {
+    const t = String(text || "").trim();
+    const m = t.match(/[?&]verify=([^&#\s]+)/) || t.match(/^(\d{6,12}(?:-\d+)?)$/);
+    if (!m) return null;
+    const v = decodeURIComponent(m[1]).split("-");
+    return { sid: (v[0] || "").trim(), seat: (v[1] || "").trim() };
+  }
+  function handleScanned(text) {
+    const r = parseScan(text);
+    if (!r || !/^\d{6,12}$/.test(r.sid)) {
+      $("vmResult").innerHTML = '<div class="vm-res"><div class="vm-status bad">NOT A VALID SLIP QR<small>This QR code does not belong to SUCCESS SINDH PORTAL.</small></div></div>';
+      return;
+    }
+    $("vm_sid").value = r.sid; $("vm_seat").value = r.seat;
+    runVerify(r.sid, r.seat);
+  }
+  async function runVerify(sid, seat) {
+    const box = $("vmResult");
+    box.innerHTML = '<div class="state"><div class="spinner"></div>Checking...</div>';
+    try {
+      const r = await authed("/rest/v1/rpc/verify_student", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p_sid: sid, p_seat: seat || null }) });
+      if (r.status === 403 || r.status === 401) { box.innerHTML = '<div class="vm-res"><div class="vm-status bad">ADMIN ACCESS ONLY<small>Login with the admin account to use VerifyMe.</small></div></div>'; return; }
+      if (!r.ok) throw new Error("verify");
+      renderVerify(await r.json(), sid, seat);
+    } catch (e) {
+      box.innerHTML = '<div class="state">Could not check right now. Check your internet and try again.</div>';
+    }
+    box.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function renderVerify(d, sid, seat) {
+    const box = $("vmResult"); box.innerHTML = "";
+    const bad = (t, sub) => { box.innerHTML = '<div class="vm-res"><div class="vm-status bad">' + t + '<small>' + sub + '</small></div></div>'; };
+    if (!d || !d.found) { bad("NOT FOUND", "No student with ID " + esc(sid) + " is registered."); return; }
+    const p = d.profile || {}, apps = d.applications || [];
+    if (!apps.length) { bad("NO VALID APPLICATION", seat ? "Student " + esc(sid) + " has no application with Seat No. " + esc(seat) + "." : "Student " + esc(sid) + " has not applied for any Olympiad."); return; }
+    apps.forEach((a) => {
+      const paid = String(a.payment_status || "").toLowerCase() === "paid";
+      const el = document.createElement("article"); el.className = "vm-res";
+      el.innerHTML =
+        '<div class="vm-status ' + (paid ? "ok" : "warn") + '">' + (paid ? "VERIFIED \u2713  PAID" : "UNPAID") +
+        '<small>' + (paid ? "This slip is valid." : "Payment is not received. Slip is not valid.") + '</small></div>' +
+        '<div class="vm-body"><div class="ids"><small>STUDENT ID NO.</small><b>' + esc(d.student_id) + '</b><small>SEAT NUMBER</small><b>' + esc(a.seat_no) + '</b></div>' +
+        '<img src="' + esc(p.photo_url || "") + '" alt="Student photo"></div>' +
+        '<div class="kv"><span>Olympiad</span><b>' + esc(a.olympiad) + '</b></div>' +
+        '<div class="kv"><span>Name</span><b>' + esc(p.name) + '</b></div>' +
+        '<div class="kv"><span>Father\'s Name</span><b>' + esc(p.father_name) + '</b></div>' +
+        '<div class="kv"><span>Class</span><b>' + esc(p.class) + '</b></div>' +
+        '<div class="kv"><span>School</span><b>' + esc(p.school) + '</b></div>' +
+        '<div class="kv"><span>Address</span><b>' + esc([p.city, p.district].filter(Boolean).join(", ")) + '</b></div>' +
+        '<div class="kv"><span>B-Form / CNIC</span><b>' + esc(p.cnic) + '</b></div>';
+      box.append(el);
+    });
+  }
+  let vmStream = null, vmLoop = false;
+  function stopScan() {
+    vmLoop = false;
+    if (vmStream) { vmStream.getTracks().forEach((t) => t.stop()); vmStream = null; }
+    const b = $("vmScanBox"); if (b) b.hidden = true;
+  }
+  async function startScan() {
+    const m = $("vmScanMsg"); m.classList.remove("show", "good");
+    const fail = (t) => { m.textContent = t; m.classList.add("show"); };
+    if (!("BarcodeDetector" in window) || !navigator.mediaDevices) { fail("This browser cannot scan inside the page. Use your phone's Camera app to scan the slip QR (it opens this portal), or enter the Student ID below."); return; }
+    try {
+      const det = new BarcodeDetector({ formats: ["qr_code"] });
+      vmStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+      const v = $("vmVideo"); v.srcObject = vmStream; await v.play();
+      $("vmScanBox").hidden = false; vmLoop = true;
+      const tick = async () => {
+        if (!vmLoop) return;
+        try {
+          const codes = await det.detect(v);
+          if (codes.length) { stopScan(); if (navigator.vibrate) navigator.vibrate(120); handleScanned(codes[0].rawValue); return; }
+        } catch (e) {}
+        setTimeout(tick, 220);
+      };
+      tick();
+    } catch (e) { stopScan(); fail("Camera could not start. Allow camera permission for this site, or enter the Student ID below."); }
+  }
+  $("vmScanBtn").onclick = startScan;
+  $("vmStopBtn").onclick = stopScan;
+  $("vmGoBtn").onclick = () => {
+    const sid = $("vm_sid").value.trim(), seat = $("vm_seat").value.trim();
+    if (!/^\d{6,12}$/.test(sid)) { $("vmResult").innerHTML = '<div class="state">Enter a valid Student ID (digits only).</div>'; return; }
+    runVerify(sid, seat);
+  };
 
   /* ---------- splash ---------- */
   (function () {

@@ -1798,10 +1798,10 @@ async function urduParas(items, wPt, sizePt) {
   return { bytes: await blob.arrayBuffer(), w: wPt, h: c.height / S };
 }
 
-async function buildSlip(app) {
+async function buildSlip(app, ov) {
   const D = await newPdf(595, 842);
-  const o = app.olympiads || {}, p = profile || {};
-  const sid = studentId || "-", seat = app.seat_no || "-";
+  const o = app.olympiads || {}, p = (ov && ov.profile) || profile || {};
+  const sid = (ov && ov.sid) || studentId || "-", seat = app.seat_no || "-";
   const X = 30, W = 535, Y = 30;
   const ur = await urduParas(SLIP_UR, W - 36, 10);
   const urImg = await D.doc.embedPng(ur.bytes);
@@ -2007,7 +2007,18 @@ async function buildSlip(app) {
         '<div class="kv"><span>Class</span><b>' + esc(p.class) + '</b></div>' +
         '<div class="kv"><span>School</span><b>' + esc(p.school) + '</b></div>' +
         '<div class="kv"><span>Address</span><b>' + esc([p.city, p.district].filter(Boolean).join(", ")) + '</b></div>' +
-        '<div class="kv"><span>B-Form / CNIC</span><b>' + esc(p.cnic) + '</b></div>';
+        '<div class="kv"><span>B-Form / CNIC</span><b>' + esc(p.cnic) + '</b></div>' +
+        (paid ? '<div class="sc-actions" style="padding:12px"><button type="button" class="btn block" data-vm="slip">View / Download Slip (PDF)</button><div class="form-msg" role="alert"></div></div>' : '');
+      const sb = el.querySelector('[data-vm="slip"]');
+      if (sb) sb.addEventListener("click", async () => {
+        const mm = el.querySelector(".form-msg"); mm.classList.remove("show", "good");
+        const lbl = sb.textContent; sb.disabled = true; sb.textContent = "Preparing PDF...";
+        try {
+          const res = await buildSlip({ olympiads: { title: a.olympiad }, seat_no: a.seat_no, created_at: a.created_at }, { profile: p, sid: d.student_id });
+          downloadPdf(res.bytes, res.name); mm.textContent = "Downloaded: " + res.name; mm.classList.add("show", "good");
+        } catch (e) { mm.textContent = "Could not create the slip PDF. Try again."; mm.classList.add("show"); }
+        finally { sb.disabled = false; sb.textContent = lbl; }
+      });
       box.append(el);
     });
   }

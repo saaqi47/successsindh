@@ -2016,7 +2016,24 @@ async function buildSlip(app, ov) {
         '<div class="kv"><span>School</span><b>' + esc(p.school) + '</b></div>' +
         '<div class="kv"><span>Address</span><b>' + esc([p.city, p.district].filter(Boolean).join(", ")) + '</b></div>' +
         '<div class="kv"><span>B-Form / CNIC</span><b>' + esc(p.cnic) + '</b></div>' +
-        (paid ? '<div class="sc-actions" style="padding:12px"><button type="button" class="btn block" data-vm="slip">View / Download Slip (PDF)</button><div class="form-msg" role="alert"></div></div>' : '');
+        '<div class="sc-actions" style="padding:12px">' +
+        (paid ? '<button type="button" class="btn block" data-vm="slip">View / Download Slip (PDF)</button><button type="button" class="btn ghost block" data-vm="unpaid">Mark as Unpaid</button>'
+              : '<button type="button" class="btn block" data-vm="paid">Mark as PAID</button>') +
+        '<div class="form-msg" role="alert"></div></div>';
+      const setPay = async (btn, status) => {
+        const mm = el.querySelector(".form-msg"); mm.classList.remove("show", "good");
+        if (!confirm((status === "Paid" ? "Mark PAID" : "Mark UNPAID") + " for " + (p.name || "") + " (ID " + d.student_id + ", " + a.olympiad + ")?")) return;
+        const lbl = btn.textContent; btn.disabled = true; btn.textContent = "Saving...";
+        try {
+          const r = await authed("/rest/v1/rpc/admin_set_payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p_app_id: a.id, p_status: status }) });
+          if (!r.ok) throw new Error("pay");
+          const j = await r.json();
+          if (!j || !j.ok) throw new Error("pay");
+          runVerify(sid, seat);
+        } catch (e) { mm.textContent = "Could not save. Check your internet and try again."; mm.classList.add("show"); btn.disabled = false; btn.textContent = lbl; }
+      };
+      const pb = el.querySelector('[data-vm="paid"]'); if (pb) pb.addEventListener("click", () => setPay(pb, "Paid"));
+      const ub = el.querySelector('[data-vm="unpaid"]'); if (ub) ub.addEventListener("click", () => setPay(ub, "Unpaid"));
       const sb = el.querySelector('[data-vm="slip"]');
       if (sb) sb.addEventListener("click", async () => {
         const mm = el.querySelector(".form-msg"); mm.classList.remove("show", "good");

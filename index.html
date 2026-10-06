@@ -468,10 +468,10 @@
       </form>
 
       <form id="regForm" novalidate hidden>
-        <p class="intro">Create your student account with your email. We will send a verification code to it.</p>
+        <p class="intro">Enter your Gmail and a password, then tap Register. We will send a 6-digit verification code to your Gmail.</p>
         <div class="field">
-          <label for="r_email">Email <span class="req">*</span></label>
-          <input type="email" id="r_email" autocomplete="email">
+          <label for="r_email">Gmail <span class="req">*</span></label>
+          <input type="email" id="r_email" autocomplete="email" placeholder="yourname@gmail.com">
           <div class="err">Enter a valid email.</div>
         </div>
         <div class="field">
@@ -486,9 +486,9 @@
       </form>
 
       <form id="verifyForm" novalidate hidden>
-        <p class="intro">We sent a verification code to <b id="v_email_show"></b>. Enter it below. Check your Spam folder too.</p>
+        <p class="intro">We sent a 6-digit verification code to <b id="v_email_show"></b>. Enter it below to finish registration. Check your Spam folder too.</p>
         <div class="field">
-          <label for="v_code">Verification code <span class="req">*</span></label>
+          <label for="v_code">6-digit verification code <span class="req">*</span></label>
           <input type="text" id="v_code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="Enter code">
           <div class="err">Enter the code from your email.</div>
         </div>
@@ -814,8 +814,10 @@
     if (t.includes("already registered") || t.includes("already been registered")) return "This email is already registered. Please login.";
     if (t.includes("rate limit") || t.includes("too many")) return "Too many attempts. Please try again after a few minutes.";
     if (t.includes("email not confirmed")) return "Email is not confirmed yet.";
+    if (t.includes("sending") && t.includes("email")) return "The verification email could not be sent right now. Please try again after a few minutes.";
     if (t.includes("password")) return "Password is too weak. Use at least 6 characters.";
-    return fallback;
+    const det = String((d && (d.msg || d.error_description || d.message)) || "").trim();
+    return fallback + (det ? " (" + det + ")" : "");
   }
 
   /* ---------- tabs ---------- */
